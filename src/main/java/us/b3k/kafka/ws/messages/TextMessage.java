@@ -36,17 +36,28 @@ public class TextMessage extends AbstractMessage {
     private static Logger LOG = LoggerFactory.getLogger(TextMessage.class);
 
     private String key = "";
-    private String message;
+    private JsonObject message;
+
+    public TextMessage(String topic, JsonObject message) {
+        this.topic = topic;
+        this.message = message;
+    }
 
     public TextMessage(String topic, String message) {
         this.topic = topic;
+        this.message = JsonParser.parseString(message).getAsJsonObject();
+    }
+
+    public TextMessage(String topic, String key, JsonObject message) {
+        this.topic = topic;
+        this.key = key;
         this.message = message;
     }
 
     public TextMessage(String topic, String key, String message) {
         this.topic = topic;
         this.key = key;
-        this.message = message;
+        this.message = JsonParser.parseString(message).getAsJsonObject();
     }
 
     @Override
@@ -56,7 +67,7 @@ public class TextMessage extends AbstractMessage {
 
     @Override
     public byte[] getMessageBytes() {
-        return message.getBytes(Charset.forName("UTF-8"));
+        return message.toString().getBytes(Charset.forName("UTF-8"));
     }
 
     @Override
@@ -68,16 +79,15 @@ public class TextMessage extends AbstractMessage {
         this.key = key;
     }
 
-    public String getMessage() {
+    public JsonObject getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(JsonObject message) {
         this.message = message;
     }
 
     static public class TextMessageDecoder implements Decoder.Text<TextMessage> {
-        static public final JsonParser jsonParser = new JsonParser();
 
         public TextMessageDecoder() {
 
@@ -85,14 +95,14 @@ public class TextMessage extends AbstractMessage {
 
         @Override
         public TextMessage decode(String s) throws DecodeException {
-            JsonObject jsonObject = TextMessageDecoder.jsonParser.parse(s).getAsJsonObject();
+            JsonObject jsonObject = JsonParser.parseString(s).getAsJsonObject();
             if (jsonObject.has("topic") && jsonObject.has("message")) {
                 String topic = jsonObject.getAsJsonPrimitive("topic").getAsString();
-                String message = jsonObject.getAsJsonPrimitive("message").getAsString();
+                JsonObject message = jsonObject.getAsJsonObject("message");
 
                 if (jsonObject.has("key")) {
                     String key = jsonObject.getAsJsonPrimitive("key").getAsString();
-                    return new TextMessage(topic,key, message);
+                    return new TextMessage(topic, key, message);
 
                 } else {
                     return new TextMessage(topic, message);
@@ -130,7 +140,7 @@ public class TextMessage extends AbstractMessage {
             if (textMessage.isKeyed()) {
                 jsonObject.addProperty("key", textMessage.getKey());
             }
-            jsonObject.addProperty("message", textMessage.getMessage());
+            jsonObject.add("message", textMessage.getMessage());
 
             return jsonObject.toString();
         }

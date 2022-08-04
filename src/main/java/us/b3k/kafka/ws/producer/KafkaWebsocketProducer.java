@@ -26,9 +26,7 @@ import us.b3k.kafka.ws.messages.AbstractMessage;
 import us.b3k.kafka.ws.messages.BinaryMessage;
 import us.b3k.kafka.ws.messages.TextMessage;
 import us.b3k.kafka.ws.transforms.Transform;
-
 import javax.websocket.Session;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;

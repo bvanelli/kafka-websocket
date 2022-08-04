@@ -26,6 +26,7 @@ import us.b3k.kafka.ws.consumer.KafkaConsumerFactory;
 import us.b3k.kafka.ws.producer.KafkaWebsocketProducerFactory;
 
 import javax.websocket.server.ServerContainer;
+import java.security.PublicKey;
 import java.util.Properties;
 
 public class KafkaWebsocketServer {
@@ -129,6 +130,7 @@ public class KafkaWebsocketServer {
             KafkaWebsocketProducerFactory producerFactory =
                     KafkaWebsocketProducerFactory.create(producerProps, Class.forName(inputTransformClassName));
 
+            KafkaWebsocketEndpoint.Configurator.setPublicKey(wsProps.getProperty("keycloak.public.key", "none"));
             KafkaWebsocketEndpoint.Configurator.CONSUMER_FACTORY = consumerFactory;
             KafkaWebsocketEndpoint.Configurator.PRODUCER = producerFactory.getProducer();
 
