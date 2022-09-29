@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.websocket.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class BinaryMessage extends AbstractMessage {
     private static Logger LOG = LoggerFactory.getLogger(BinaryMessage.class);
@@ -72,12 +73,9 @@ public class BinaryMessage extends AbstractMessage {
 
         @Override
         public BinaryMessage decode(ByteBuffer byteBuffer) throws DecodeException {
-            int bufLen = byteBuffer.array().length;
-            int topicLen = byteBuffer.get(0);
-            String topic = new String(byteBuffer.array(), 1, topicLen, Charset.forName("UTF-8"));
-            ByteBuffer messageBuf = ByteBuffer.allocate(bufLen - topicLen - 1);
-            System.arraycopy(byteBuffer.array(), topicLen + 1, messageBuf.array(), 0, bufLen - topicLen - 1);
-            return new BinaryMessage(topic, messageBuf.array());
+            String message = StandardCharsets.UTF_8.decode(byteBuffer).toString();
+            TextMessage message_decoded = new TextMessage.TextMessageDecoder().decode(message);
+            return new BinaryMessage(message_decoded.topic, message_decoded.getMessageBytes());
         }
 
         @Override

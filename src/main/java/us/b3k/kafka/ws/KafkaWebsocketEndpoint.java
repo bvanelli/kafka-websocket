@@ -111,6 +111,9 @@ public class KafkaWebsocketEndpoint {
     public void onMessage(final BinaryMessage message, final Session session) {
         LOG.trace("Received binary message: topic - {}; message - {}",
                 message.getTopic(), message.getMessage());
+        String principal = session.getUserProperties().get("kafka_principal").toString();
+        String topic = principal + "-" + message.getTopic();
+        message.setTopic(topic);
         producer().send(message, session);
     }
 
