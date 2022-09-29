@@ -1,0 +1,17 @@
+
+
+stages:
+  - build
+
+
+build:
+  image: docker:latest
+  stage: build
+  services:
+     - name: docker:dind
+       command: [ "--insecure-registry=gitlab.plus10.local:4567" ]
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+  script:
+    - docker build -t $DEV_REGISTRY_URL:latest .
+    - docker push $DEV_REGISTRY_URL:latest
